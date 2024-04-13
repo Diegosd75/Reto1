@@ -1,0 +1,40 @@
+name: CI-CD Performance Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    - name: Build Docker image
+      run: |
+        docker build -t event-processor:latest .
+
+    - name: Run performance tests
+      run: |
+        locust -f locustfile.py --headless -u 10 -r 1 --run-time 1m --host http://localhost:5000
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Deploy to Kubernetes
+      run: |
+        echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+        kubectl apply -f kubernetes/deployment.yaml
+        kubectl apply -f kubernetes/service.yaml

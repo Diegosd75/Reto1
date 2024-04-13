@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: process-event-service
+  name: event-processor-service
 spec:
   type: ClusterIP
   selector:
