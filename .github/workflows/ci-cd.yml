@@ -27,6 +27,7 @@ jobs:
 
     - name: Run performance tests
       run: |
+        cd tests
         locust -f locustfile.py --headless -u 10 -r 1 --run-time 1m --host http://localhost:5000
 
   deploy:
