@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-processor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: event-processor
+  template:
+    metadata:
+      labels:
+        app: event-processor
+    spec:
+      securityContext:
+        runAsUser: 1000  # ID de usuario no privilegiado
+        runAsGroup: 3000 # ID de grupo no privilegiado
+        fsGroup: 2000    # Asegura el acceso correcto al sistema de ficheros
+        allowPrivilegeEscalation: false # Evita la escalada de privilegios
+      containers:
+      - name: event-processor
+        image: event-processor:latest
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "250m"
+            memory: "128Mi"
+        ports:
+        - containerPort: 5000
